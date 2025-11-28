@@ -1,0 +1,47 @@
+{
+  "project_name": "PROJECT_NAME",
+  "created": "CREATED_DATE",
+  "last_updated": "CREATED_DATE",
+  "total_features": 0,
+  "passing_features": 0,
+  "categories": {
+    "functional": "Core user-facing functionality",
+    "integration": "External system connections", 
+    "ui": "User interface and experience",
+    "performance": "Speed and scalability requirements",
+    "security": "Authentication, authorization, data protection",
+    "infrastructure": "Deployment, monitoring, logging"
+  },
+  "features": [
+    {
+      "id": "F001",
+      "category": "infrastructure",
+      "priority": "critical",
+      "description": "Development server starts and responds to requests",
+      "steps": [
+        "Run ./init.sh",
+        "Verify server starts without errors",
+        "Health check endpoint returns 200 OK"
+      ],
+      "dependencies": [],
+      "passes": false,
+      "verified_at": null,
+      "notes": ""
+    },
+    {
+      "id": "F002",
+      "category": "infrastructure", 
+      "priority": "critical",
+      "description": "Basic project structure and dependencies configured",
+      "steps": [
+        "All required dependencies installed",
+        "Project builds without errors",
+        "Linter passes"
+      ],
+      "dependencies": [],
+      "passes": false,
+      "verified_at": null,
+      "notes": ""
+    }
+  ]
+}
