@@ -210,6 +210,4 @@ long-running-agent-template/
 
 MIT - Use however you want.
 
-## Credits
 
-Based on Anthropic's research on long-running agents (November 2025).
