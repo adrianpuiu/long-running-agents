@@ -1,0 +1,663 @@
+{
+  "project_name": "Trading Analytics Dashboard",
+  "created": "2025-11-27T10:00:00Z",
+  "last_updated": "2025-11-27T10:00:00Z",
+  "total_features": 42,
+  "passing_features": 0,
+  "categories": {
+    "functional": "Core user-facing functionality",
+    "integration": "External system connections",
+    "ui": "User interface and experience",
+    "performance": "Speed and scalability requirements",
+    "security": "Authentication, authorization, data protection",
+    "infrastructure": "Deployment, monitoring, logging"
+  },
+  "features": [
+    {
+      "id": "F001",
+      "category": "infrastructure",
+      "priority": "critical",
+      "description": "FastAPI backend server starts and responds to health check",
+      "steps": [
+        "Run python main.py",
+        "GET /health returns 200 OK",
+        "Response includes version and timestamp"
+      ],
+      "dependencies": [],
+      "passes": false,
+      "verified_at": null,
+      "notes": ""
+    },
+    {
+      "id": "F002",
+      "category": "infrastructure",
+      "priority": "critical",
+      "description": "React frontend builds and renders root component",
+      "steps": [
+        "Run npm run dev",
+        "Navigate to http://localhost:5173",
+        "App shell renders without errors"
+      ],
+      "dependencies": [],
+      "passes": false,
+      "verified_at": null,
+      "notes": ""
+    },
+    {
+      "id": "F003",
+      "category": "infrastructure",
+      "priority": "critical",
+      "description": "SQLite database initializes with schema on first run",
+      "steps": [
+        "Delete existing database file",
+        "Start backend server",
+        "Verify tables created: users, portfolios, positions, trades, alerts"
+      ],
+      "dependencies": ["F001"],
+      "passes": false,
+      "verified_at": null,
+      "notes": ""
+    },
+    {
+      "id": "F004",
+      "category": "security",
+      "priority": "critical",
+      "description": "User can register with email and password",
+      "steps": [
+        "POST /auth/register with email/password",
+        "User created in database with hashed password",
+        "Returns JWT token"
+      ],
+      "dependencies": ["F003"],
+      "passes": false,
+      "verified_at": null,
+      "notes": ""
+    },
+    {
+      "id": "F005",
+      "category": "security",
+      "priority": "critical",
+      "description": "User can login and receive JWT token",
+      "steps": [
+        "POST /auth/login with valid credentials",
+        "Returns access token and refresh token",
+        "Token contains user_id claim"
+      ],
+      "dependencies": ["F004"],
+      "passes": false,
+      "verified_at": null,
+      "notes": ""
+    },
+    {
+      "id": "F006",
+      "category": "security",
+      "priority": "critical",
+      "description": "Protected endpoints require valid JWT",
+      "steps": [
+        "GET /api/portfolio without token returns 401",
+        "GET /api/portfolio with valid token returns 200",
+        "Expired token returns 401"
+      ],
+      "dependencies": ["F005"],
+      "passes": false,
+      "verified_at": null,
+      "notes": ""
+    },
+    {
+      "id": "F007",
+      "category": "ui",
+      "priority": "critical",
+      "description": "Login page with email/password form",
+      "steps": [
+        "Navigate to /login",
+        "Form renders with email, password fields",
+        "Submit calls backend and stores token",
+        "Redirects to dashboard on success"
+      ],
+      "dependencies": ["F002", "F005"],
+      "passes": false,
+      "verified_at": null,
+      "notes": ""
+    },
+    {
+      "id": "F008",
+      "category": "ui",
+      "priority": "critical",
+      "description": "Registration page with validation",
+      "steps": [
+        "Navigate to /register",
+        "Form validates email format",
+        "Form validates password strength (8+ chars)",
+        "Shows error messages for invalid input"
+      ],
+      "dependencies": ["F002", "F004"],
+      "passes": false,
+      "verified_at": null,
+      "notes": ""
+    },
+    {
+      "id": "F009",
+      "category": "functional",
+      "priority": "critical",
+      "description": "User can create a portfolio with name and description",
+      "steps": [
+        "POST /api/portfolios with name and description",
+        "Portfolio created with user_id from token",
+        "Returns portfolio object with ID"
+      ],
+      "dependencies": ["F006"],
+      "passes": false,
+      "verified_at": null,
+      "notes": ""
+    },
+    {
+      "id": "F010",
+      "category": "functional",
+      "priority": "critical",
+      "description": "User can add positions to portfolio",
+      "steps": [
+        "POST /api/portfolios/{id}/positions with symbol, quantity, entry_price",
+        "Position created and linked to portfolio",
+        "Returns position with calculated market value"
+      ],
+      "dependencies": ["F009"],
+      "passes": false,
+      "verified_at": null,
+      "notes": ""
+    },
+    {
+      "id": "F011",
+      "category": "functional",
+      "priority": "critical",
+      "description": "User can view portfolio positions list",
+      "steps": [
+        "GET /api/portfolios/{id}/positions",
+        "Returns array of positions with current prices",
+        "Includes unrealized P&L for each position"
+      ],
+      "dependencies": ["F010"],
+      "passes": false,
+      "verified_at": null,
+      "notes": ""
+    },
+    {
+      "id": "F012",
+      "category": "functional",
+      "priority": "high",
+      "description": "User can update position quantity (add/reduce)",
+      "steps": [
+        "PATCH /api/positions/{id} with new quantity",
+        "Position updated with new average entry price",
+        "Returns updated position"
+      ],
+      "dependencies": ["F010"],
+      "passes": false,
+      "verified_at": null,
+      "notes": ""
+    },
+    {
+      "id": "F013",
+      "category": "functional",
+      "priority": "high",
+      "description": "User can close position (quantity to zero)",
+      "steps": [
+        "DELETE /api/positions/{id}",
+        "Position marked as closed with exit_price",
+        "Realized P&L calculated and stored"
+      ],
+      "dependencies": ["F010"],
+      "passes": false,
+      "verified_at": null,
+      "notes": ""
+    },
+    {
+      "id": "F014",
+      "category": "integration",
+      "priority": "critical",
+      "description": "Fetch real-time stock prices from external API",
+      "steps": [
+        "GET /api/prices/{symbol}",
+        "Returns current price, change, volume",
+        "Caches results for 1 minute"
+      ],
+      "dependencies": ["F001"],
+      "passes": false,
+      "verified_at": null,
+      "notes": "Use Yahoo Finance or Polygon.io"
+    },
+    {
+      "id": "F015",
+      "category": "integration",
+      "priority": "high",
+      "description": "Fetch historical OHLCV data for charting",
+      "steps": [
+        "GET /api/prices/{symbol}/history?period=1Y",
+        "Returns daily OHLCV data",
+        "Supports periods: 1M, 3M, 6M, 1Y, 5Y"
+      ],
+      "dependencies": ["F014"],
+      "passes": false,
+      "verified_at": null,
+      "notes": ""
+    },
+    {
+      "id": "F016",
+      "category": "ui",
+      "priority": "critical",
+      "description": "Dashboard shows portfolio summary card",
+      "steps": [
+        "Navigate to /dashboard",
+        "Card shows total value, day P&L, total P&L",
+        "Values update when positions change"
+      ],
+      "dependencies": ["F007", "F011"],
+      "passes": false,
+      "verified_at": null,
+      "notes": ""
+    },
+    {
+      "id": "F017",
+      "category": "ui",
+      "priority": "critical",
+      "description": "Dashboard shows positions table",
+      "steps": [
+        "Positions table with columns: Symbol, Qty, Entry, Current, P&L, %",
+        "Sortable by any column",
+        "Color-coded P&L (green/red)"
+      ],
+      "dependencies": ["F016"],
+      "passes": false,
+      "verified_at": null,
+      "notes": ""
+    },
+    {
+      "id": "F018",
+      "category": "ui",
+      "priority": "high",
+      "description": "Dashboard shows sector exposure pie chart",
+      "steps": [
+        "Pie chart renders sector allocation",
+        "Hover shows percentage and value",
+        "Legend lists all sectors"
+      ],
+      "dependencies": ["F016"],
+      "passes": false,
+      "verified_at": null,
+      "notes": ""
+    },
+    {
+      "id": "F019",
+      "category": "functional",
+      "priority": "critical",
+      "description": "Calculate portfolio risk metrics using railpath-finance-toolkit",
+      "steps": [
+        "GET /api/portfolios/{id}/risk",
+        "Returns Sharpe, Sortino, max drawdown, VaR",
+        "Uses toolkit functions for calculations"
+      ],
+      "dependencies": ["F011", "F015"],
+      "passes": false,
+      "verified_at": null,
+      "notes": "Integrate railpath-finance-toolkit"
+    },
+    {
+      "id": "F020",
+      "category": "ui",
+      "priority": "critical",
+      "description": "Risk console displays all risk metrics",
+      "steps": [
+        "Navigate to /risk",
+        "Shows Sharpe ratio with benchmark comparison",
+        "Shows Sortino ratio",
+        "Shows VaR at 95% and 99% confidence",
+        "Shows max drawdown with date range"
+      ],
+      "dependencies": ["F019"],
+      "passes": false,
+      "verified_at": null,
+      "notes": ""
+    },
+    {
+      "id": "F021",
+      "category": "ui",
+      "priority": "high",
+      "description": "Risk console shows drawdown chart",
+      "steps": [
+        "Line chart of drawdown over time",
+        "Highlights max drawdown period",
+        "Tooltip shows exact values"
+      ],
+      "dependencies": ["F020"],
+      "passes": false,
+      "verified_at": null,
+      "notes": ""
+    },
+    {
+      "id": "F022",
+      "category": "functional",
+      "priority": "high",
+      "description": "Calculate HMM regime states for market data",
+      "steps": [
+        "POST /api/regime/detect with price series",
+        "Returns regime states (bull/bear/neutral)",
+        "Returns transition probabilities",
+        "Uses toolkit HMM functions"
+      ],
+      "dependencies": ["F015"],
+      "passes": false,
+      "verified_at": null,
+      "notes": "Uses railpath-finance-toolkit HMM"
+    },
+    {
+      "id": "F023",
+      "category": "ui",
+      "priority": "high",
+      "description": "Regime detector page with state visualization",
+      "steps": [
+        "Navigate to /regime",
+        "Price chart with regime overlay (colored bands)",
+        "Current regime state prominently displayed",
+        "Regime probability gauge"
+      ],
+      "dependencies": ["F022"],
+      "passes": false,
+      "verified_at": null,
+      "notes": ""
+    },
+    {
+      "id": "F024",
+      "category": "ui",
+      "priority": "medium",
+      "description": "Regime transition matrix visualization",
+      "steps": [
+        "Heatmap shows state transition probabilities",
+        "Color intensity indicates probability",
+        "Values displayed in cells"
+      ],
+      "dependencies": ["F023"],
+      "passes": false,
+      "verified_at": null,
+      "notes": ""
+    },
+    {
+      "id": "F025",
+      "category": "functional",
+      "priority": "high",
+      "description": "User can log a trade in journal",
+      "steps": [
+        "POST /api/trades with symbol, side, quantity, price, date",
+        "Trade created with calculated P&L if closing",
+        "Returns trade object with ID"
+      ],
+      "dependencies": ["F006"],
+      "passes": false,
+      "verified_at": null,
+      "notes": ""
+    },
+    {
+      "id": "F026",
+      "category": "functional",
+      "priority": "high",
+      "description": "User can tag trades with strategy labels",
+      "steps": [
+        "PATCH /api/trades/{id} with tags array",
+        "Tags stored and searchable",
+        "Supports custom tag creation"
+      ],
+      "dependencies": ["F025"],
+      "passes": false,
+      "verified_at": null,
+      "notes": ""
+    },
+    {
+      "id": "F027",
+      "category": "functional",
+      "priority": "high",
+      "description": "User can add notes and screenshots to trades",
+      "steps": [
+        "PATCH /api/trades/{id} with notes text",
+        "POST /api/trades/{id}/screenshot with image",
+        "Images stored and retrievable"
+      ],
+      "dependencies": ["F025"],
+      "passes": false,
+      "verified_at": null,
+      "notes": ""
+    },
+    {
+      "id": "F028",
+      "category": "ui",
+      "priority": "high",
+      "description": "Trade journal page with filterable list",
+      "steps": [
+        "Navigate to /journal",
+        "Table shows all trades with key metrics",
+        "Filter by date range, symbol, tags",
+        "Sort by any column"
+      ],
+      "dependencies": ["F025"],
+      "passes": false,
+      "verified_at": null,
+      "notes": ""
+    },
+    {
+      "id": "F029",
+      "category": "functional",
+      "priority": "high",
+      "description": "Calculate trade journal statistics",
+      "steps": [
+        "GET /api/trades/stats",
+        "Returns win rate, avg win, avg loss, profit factor",
+        "Returns stats by tag/strategy",
+        "Returns equity curve data"
+      ],
+      "dependencies": ["F025"],
+      "passes": false,
+      "verified_at": null,
+      "notes": ""
+    },
+    {
+      "id": "F030",
+      "category": "ui",
+      "priority": "medium",
+      "description": "Trade journal statistics dashboard",
+      "steps": [
+        "Stats cards show key metrics",
+        "Equity curve line chart",
+        "Win/loss distribution histogram",
+        "Performance by strategy bar chart"
+      ],
+      "dependencies": ["F029"],
+      "passes": false,
+      "verified_at": null,
+      "notes": ""
+    },
+    {
+      "id": "F031",
+      "category": "functional",
+      "priority": "medium",
+      "description": "Run strategy backtest with walk-forward validation",
+      "steps": [
+        "POST /api/backtest with strategy params and date range",
+        "Runs backtest with 70/30 train/test split",
+        "Returns equity curve, trades, metrics",
+        "Uses toolkit backtest functions"
+      ],
+      "dependencies": ["F015", "F019"],
+      "passes": false,
+      "verified_at": null,
+      "notes": ""
+    },
+    {
+      "id": "F032",
+      "category": "ui",
+      "priority": "medium",
+      "description": "Backtester page with strategy configuration",
+      "steps": [
+        "Navigate to /backtest",
+        "Form to select strategy type (SMA cross, RSI, etc.)",
+        "Parameter inputs for strategy",
+        "Date range picker"
+      ],
+      "dependencies": ["F031"],
+      "passes": false,
+      "verified_at": null,
+      "notes": ""
+    },
+    {
+      "id": "F033",
+      "category": "ui",
+      "priority": "medium",
+      "description": "Backtest results visualization",
+      "steps": [
+        "Equity curve with drawdown overlay",
+        "Trade markers on price chart",
+        "Metrics summary (CAGR, Sharpe, max DD)",
+        "Monthly returns heatmap"
+      ],
+      "dependencies": ["F032"],
+      "passes": false,
+      "verified_at": null,
+      "notes": ""
+    },
+    {
+      "id": "F034",
+      "category": "functional",
+      "priority": "high",
+      "description": "User can create price alerts",
+      "steps": [
+        "POST /api/alerts with symbol, condition, price",
+        "Alert created and active",
+        "Supports conditions: above, below, cross"
+      ],
+      "dependencies": ["F006"],
+      "passes": false,
+      "verified_at": null,
+      "notes": ""
+    },
+    {
+      "id": "F035",
+      "category": "functional",
+      "priority": "high",
+      "description": "User can create risk limit alerts",
+      "steps": [
+        "POST /api/alerts with type=risk, metric, threshold",
+        "Supports VaR breach, drawdown limit, position size",
+        "Alert triggers when limit exceeded"
+      ],
+      "dependencies": ["F019", "F034"],
+      "passes": false,
+      "verified_at": null,
+      "notes": ""
+    },
+    {
+      "id": "F036",
+      "category": "integration",
+      "priority": "high",
+      "description": "WebSocket connection for real-time updates",
+      "steps": [
+        "Client connects to /ws with JWT",
+        "Server pushes price updates",
+        "Server pushes alert notifications",
+        "Reconnects on disconnect"
+      ],
+      "dependencies": ["F006", "F014"],
+      "passes": false,
+      "verified_at": null,
+      "notes": ""
+    },
+    {
+      "id": "F037",
+      "category": "ui",
+      "priority": "high",
+      "description": "Real-time alert notifications in UI",
+      "steps": [
+        "Toast notification appears on alert trigger",
+        "Notification shows alert details",
+        "Click navigates to relevant page",
+        "Alert sound plays (optional)"
+      ],
+      "dependencies": ["F036"],
+      "passes": false,
+      "verified_at": null,
+      "notes": ""
+    },
+    {
+      "id": "F038",
+      "category": "ui",
+      "priority": "medium",
+      "description": "Alerts management page",
+      "steps": [
+        "Navigate to /alerts",
+        "List all active alerts",
+        "Toggle alerts on/off",
+        "Delete alerts"
+      ],
+      "dependencies": ["F034", "F035"],
+      "passes": false,
+      "verified_at": null,
+      "notes": ""
+    },
+    {
+      "id": "F039",
+      "category": "ui",
+      "priority": "medium",
+      "description": "Responsive layout works on tablet",
+      "steps": [
+        "Resize to 768px width",
+        "Navigation collapses to hamburger",
+        "Tables scroll horizontally",
+        "Charts resize appropriately"
+      ],
+      "dependencies": ["F016"],
+      "passes": false,
+      "verified_at": null,
+      "notes": ""
+    },
+    {
+      "id": "F040",
+      "category": "ui",
+      "priority": "low",
+      "description": "Dark mode theme toggle",
+      "steps": [
+        "Toggle in header switches theme",
+        "Preference persisted to localStorage",
+        "All components support dark mode"
+      ],
+      "dependencies": ["F002"],
+      "passes": false,
+      "verified_at": null,
+      "notes": ""
+    },
+    {
+      "id": "F041",
+      "category": "performance",
+      "priority": "medium",
+      "description": "API responses under 200ms for standard queries",
+      "steps": [
+        "Measure /api/portfolios response time",
+        "Measure /api/positions response time",
+        "All standard GETs under 200ms"
+      ],
+      "dependencies": ["F011"],
+      "passes": false,
+      "verified_at": null,
+      "notes": ""
+    },
+    {
+      "id": "F042",
+      "category": "infrastructure",
+      "priority": "medium",
+      "description": "Error logging and monitoring",
+      "steps": [
+        "Errors logged to file with stack trace",
+        "API errors return structured error response",
+        "Frontend catches and displays errors gracefully"
+      ],
+      "dependencies": ["F001", "F002"],
+      "passes": false,
+      "verified_at": null,
+      "notes": ""
+    }
+  ]
+}
